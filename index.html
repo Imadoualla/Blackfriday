@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Black Friday Picks · Rendy</title>
+  <meta name="description" content="Rendy Black Friday pricing card: the four shortlisted designs from Figma, each in red and yellow." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet" />
+  <style>
+    /* the switchable colour is a registered property, so every place that uses it (ribbon, "-25% OFF", card light, cursor glow)
+       eases from red to yellow together instead of jumping */
+    @property --accent { syntax: "<color>"; inherits: true; initial-value: #de232c; }
+    @property --gr { syntax: "<length>"; inherits: false; initial-value: 200px; }
+
+    :root {
+      --white: #ffffff;
+      --card-text: #d1d1d1;
+      --soft: #a3a3a3;
+      --scrim: #030204;
+      --title: #fdfdfd;
+      --muted: #a3a3a3;
+      --colon: #d9d9d9;
+      --card-shadow: 0 307px 86px rgba(0, 0, 0, 0), 0 196px 78px rgba(0, 0, 0, 0.01), 0 10px 10px rgba(0, 0, 0, 0.02), 0 12px 27px rgba(0, 0, 0, 0.1);
+      --btn-shadow:
+        0 89px 25px rgba(61, 61, 61, 0), 0 57px 23px rgba(61, 61, 61, 0.01),
+        0 32px 19px rgba(61, 61, 61, 0.05), 0 14px 14px rgba(61, 61, 61, 0.09),
+        0 4px 8px rgba(61, 61, 61, 0.1);
+      --btn-inset: inset 0 2px 5.9px rgba(0, 0, 0, 0.22);
+      /* Figma's white inner light on the small dark panels: top and bottom edges only */
+      --edge-light: inset 0 -1px 2.5px rgba(255, 255, 255, 0.44), inset 0 1px 2.5px rgba(255, 255, 255, 0.44);
+      --edge-fade: linear-gradient(90deg, transparent 6px, #000 26px, #000 calc(100% - 26px), transparent calc(100% - 6px));
+      --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+      --ctrl-bg: #222222;
+      --ctrl-hover: #2b2b2b;
+      --ctrl-edge: #121212;
+      --ctrl-ink: #ffffff;
+      --ctrl-inset: inset 0 2px 3.9px rgba(255, 255, 255, 0.18);
+      --tab-on: #333333;
+      --focus: #ffffff;
+      --glow-max: 0.8;
+      --glow-rest: 0.05;
+      --lit-hover: 0.3;
+      transition: --accent 420ms var(--ease-out);
+      color-scheme: dark;
+    }
+    /* Figma's two colours. Red frames rest the card light at 12%, yellow frames at 15%. */
+    :root[data-color="red"] { --accent: #de232c; --tag-ink: #ffffff; --lit-rest: 0.12; }
+    :root[data-color="yellow"] { --accent: #fff318; --tag-ink: #000000; --lit-rest: 0.15; }
+
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body {
+      margin: 0; background: var(--scrim); color: var(--title);
+      font-family: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    img { display: block; max-width: none; }
+    a { color: inherit; }
+    p, h1, h2, ul { margin: 0; }
+    ul { padding: 0; list-style: none; }
+    s { text-decoration-thickness: from-font; }
+    button { font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    :focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+    /* ---------- Page: every frame centres its column 23.5px below the 952 frame's centre (column centre y 499.5),
+       and the texture sits at y 335.5, 140.5px above the frame's centre ---------- */
+    .offer-scroll { position: fixed; inset: 0; display: flex; overflow-x: hidden; overflow-y: auto; padding: 90px 0; background: var(--scrim); }
+    .page { position: relative; width: min(382px, 100% - 32px); margin: auto; padding-top: 47px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+    .page > *:not(.tex-wrap) { position: relative; z-index: 1; }
+
+    /* ---------- Texture: red and yellow stacked, crossfading when the colour changes ---------- */
+    .tex-wrap { position: absolute; z-index: 0; top: calc(50% - 140.5px); left: 50%; width: 778px; height: 321px; margin-left: -389px; pointer-events: none; }
+    .tex-wrap > img { position: absolute; inset: 0; width: 100%; height: 100%; transition: opacity 420ms var(--ease-out); }
+    [data-color="red"] .tex-yellow, [data-color="yellow"] .tex-red { opacity: 0; }
+    /* the cursor glow: the texture's own dot grid, lit in the current colour around the pointer, inside a feathered ellipse */
+    .glow {
+      --gx: 50%; --gy: 40%; --gr: 420px;
+      position: absolute; inset: 0;
+      -webkit-mask: var(--dots, none) 0 0 / 400px 400px repeat, radial-gradient(closest-side, #000 52%, rgba(0, 0, 0, 0.75) 74%, transparent 100%);
+      -webkit-mask-composite: source-in;
+      mask: var(--dots, none) 0 0 / 400px 400px repeat, radial-gradient(closest-side, #000 52%, rgba(0, 0, 0, 0.75) 74%, transparent 100%);
+      mask-composite: intersect;
+      background: radial-gradient(var(--gr) circle at var(--gx) var(--gy),
+        color-mix(in srgb, var(--accent) 55%, #ffffff) 0%, var(--accent) 26%, color-mix(in srgb, var(--accent) 45%, transparent) 56%, transparent 100%);
+      opacity: var(--glow-rest); transition: opacity 500ms ease, --gr 500ms ease;
+    }
+    .is-lit .glow { --gr: 200px; opacity: var(--glow-max); transition-duration: 260ms; }
+
+    /* ---------- Header: 54px title with "-25% OFF" fading up out of it in the current colour
+       (Figma: 50px, 37px above, gradient bottom-to-top from transparent at 20% to the colour at 170%) ---------- */
+    .hero { position: relative; display: flex; flex-direction: column; align-items: center; width: 583px; max-width: calc(100vw - 32px); text-align: center; }
+    .hero h1 { font-weight: 500; font-size: 54px; line-height: 80px; letter-spacing: -1.62px; color: var(--title); white-space: nowrap; }
+    .hero .ghost {
+      --gh: 60px;
+      position: absolute; top: -37px; left: 50%; translate: -50% 0;
+      font-weight: 500; font-size: 50px; line-height: var(--gh); letter-spacing: -1.5px; white-space: nowrap;
+    }
+    /* hovering "-25% OFF" rolls it letter by letter, like the button. Each letter carries the fade itself: the gradient
+       runs bottom-to-top, so splitting the word sideways leaves it exactly as one piece of text */
+    .ghost .g-line { display: inline-flex; }
+    .ghost .g-line.alt { position: absolute; top: 0; left: 0; }
+    .ghost .rc { height: var(--gh); }
+    .ghost .rc > span {
+      background: linear-gradient(to top, color-mix(in srgb, var(--accent) 0%, transparent) 20%, var(--accent) 170.03%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .ghost .g-line.alt .rc > span { transform: translateY(100%); }
+    @media (hover: hover) and (pointer: fine) {
+      .ghost:hover .g-line:first-child .rc > span { transform: translateY(-100%); }
+      .ghost:hover .g-line.alt .rc > span { transform: none; }
+    }
+
+    /* ---------- Card column: the shell, then "Every Listing Includes" 32px below ---------- */
+    .design { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 32px; }
+    .js .design { animation: card-in 640ms var(--ease-out) both; }
+    @keyframes card-in { from { opacity: 0; transform: translateY(14px) scale(0.985); } to { opacity: 1; transform: none; } }
+
+    .shell { position: relative; width: 100%; display: flex; flex-direction: column; padding: 6px; border-radius: 30px; background: #0a0a0a; border: 1px solid #181818; }
+    .bottom { display: flex; flex-direction: column; gap: 24px; padding: 24px; }
+
+    /* black panel (Figma "analytics 25") */
+    .panel {
+      position: relative; isolation: isolate; overflow: clip;
+      display: flex; flex-direction: column; gap: 24px;
+      padding: 23px; border-radius: 24px; border: 1px solid #191919; color: var(--white);
+      background: #000; box-shadow: var(--card-shadow);
+    }
+    .panel > * { position: relative; z-index: 1; }
+    /* top-left light in the current colour, on its own layer so hovering the card can lift it (Figma's radial, per card height) */
+    .panel::before {
+      content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+      background: var(--accent);
+      -webkit-mask: var(--lm) 0 0 / 100% 100% no-repeat; mask: var(--lm) 0 0 / 100% 100% no-repeat;
+      opacity: var(--lit-rest); transform-origin: 0 0;
+      transition: opacity 700ms var(--ease-out), transform 900ms var(--ease-out);
+    }
+    @media (hover: hover) and (pointer: fine) {
+      .design:hover .panel::before { opacity: var(--lit-hover); transform: scale(1.18); transition-duration: 420ms, 600ms; }
+    }
+    .design:focus-within .panel::before { opacity: var(--lit-hover); }
+    .lm-264 { --lm: url("data:image/svg+xml,%3Csvg viewBox='0 0 368 264' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'%3E%3Crect width='100%25' height='100%25' fill='url(%23g)'/%3E%3Cdefs%3E%3CradialGradient id='g' gradientUnits='userSpaceOnUse' cx='0' cy='0' r='10' gradientTransform='matrix(16.476 14.499 -20.21 8.8201 -12.652 -12.985)'%3E%3Cstop stop-color='%23fff' offset='0.03328'/%3E%3Cstop stop-color='%23fff' stop-opacity='0' offset='1'/%3E%3C/radialGradient%3E%3C/defs%3E%3C/svg%3E"); }
+    .lm-278 { --lm: url("data:image/svg+xml,%3Csvg viewBox='0 0 368 278' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'%3E%3Crect width='100%25' height='100%25' fill='url(%23g)'/%3E%3Cdefs%3E%3CradialGradient id='g' gradientUnits='userSpaceOnUse' cx='0' cy='0' r='10' gradientTransform='matrix(16.476 15.267 -20.21 9.2879 -12.652 -13.674)'%3E%3Cstop stop-color='%23fff' offset='0.03328'/%3E%3Cstop stop-color='%23fff' stop-opacity='0' offset='1'/%3E%3C/radialGradient%3E%3C/defs%3E%3C/svg%3E"); }
+    .lm-268 { --lm: url("data:image/svg+xml,%3Csvg viewBox='0 0 368 268' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'%3E%3Crect width='100%25' height='100%25' fill='url(%23g)'/%3E%3Cdefs%3E%3CradialGradient id='g' gradientUnits='userSpaceOnUse' cx='0' cy='0' r='10' gradientTransform='matrix(16.476 14.718 -20.21 8.9538 -12.652 -13.182)'%3E%3Cstop stop-color='%23fff' offset='0.03328'/%3E%3Cstop stop-color='%23fff' stop-opacity='0' offset='1'/%3E%3C/radialGradient%3E%3C/defs%3E%3C/svg%3E"); }
+
+    /* lights art (at 50% in these frames) and stars */
+    .panel > .lights, .panel > .stars { position: absolute; z-index: 0; pointer-events: none; }
+    .lights { right: -0.51px; top: -0.5px; width: 544.865px; height: 406px; transform: scaleY(-1); opacity: 0.5; }
+    .lights .sheet { position: absolute; width: 640.919px; height: 530.434px; transform: rotate(180deg); }
+    .lights .sheet.a { left: -160.34px; top: 239.71px; }
+    .lights .sheet.b { left: -276.44px; top: 189.46px; }
+    .lights .sheet > div { position: absolute; inset: -8.56% -7.08% -7.71% -5.41%; }
+    .lights img { width: 100%; height: 100%; }
+    .stars { left: calc(100% - 429.4px); top: calc(50% - 445.4px); width: 1267.61px; height: 464.047px; transform: rotate(-165deg); }
+
+    .stack-6 { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+    .stack-4 { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+    .head-row { position: relative; display: flex; flex-direction: column; gap: 8px; }
+    .head-row h2 { font-weight: 500; font-size: 30px; line-height: 32px; white-space: nowrap; }
+    .sub { font-size: 16px; line-height: 20px; color: var(--soft); white-space: nowrap; }
+    .price { display: flex; align-items: baseline; height: 40px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .price .was { font-size: 40px; line-height: 40px; color: var(--soft); text-decoration: line-through; text-decoration-thickness: from-font; }
+    .price .now { font-weight: 500; font-size: 40px; line-height: 40px; }
+    .price .per { font-weight: 500; font-size: 16px; line-height: 40px; color: var(--card-text); }
+    .was-20 { font-size: 20px; line-height: 20px; color: var(--soft); text-decoration: line-through; text-decoration-thickness: from-font; font-variant-numeric: tabular-nums; }
+    .fine-14 { font-size: 14px; line-height: 14px; letter-spacing: 0.14px; color: var(--soft); white-space: nowrap; }
+    .fine-14 .w { color: var(--white); }
+    .meta { display: flex; align-items: center; gap: 6px; }
+    .meta .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--soft); }
+
+    /* V2's billing chip: the countdown's material (inside stroke, top and bottom light faded before the corners) at 8px radius */
+    .chip {
+      position: relative; overflow: clip; display: inline-flex; align-items: center; padding: 8px 12px; border-radius: 8px;
+      background: #141414; box-shadow: 0 1.563px 1.563px rgba(0, 0, 0, 0.1);
+      font-size: 12px; line-height: 12px; letter-spacing: 0.12px; color: var(--card-text); white-space: nowrap;
+    }
+
+    /* shared edge treatment for the chip and the countdown */
+    .chip::before, .countdown::before { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; box-shadow: var(--edge-light); -webkit-mask: var(--edge-fade); mask: var(--edge-fade); }
+    .chip::after, .countdown::after { content: ""; position: absolute; inset: 0; border-radius: inherit; border: 1.563px solid #070707; pointer-events: none; }
+    .chip > *, .countdown > * { position: relative; }
+
+    .cta-group { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .cta {
+      position: relative; overflow: clip; display: flex; align-items: center; justify-content: center;
+      width: 100%; height: 48px; padding: 0 20px; border-radius: 12px;
+      background: var(--white); color: #000; box-shadow: var(--btn-shadow);
+      font-weight: 500; font-size: 16px; line-height: 20px; text-decoration: none; white-space: nowrap;
+      transition: transform 160ms var(--ease-out), background-color 150ms ease;
+    }
+    .cta::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: var(--btn-inset); pointer-events: none; }
+    .cta:focus-visible { outline-color: var(--white); }
+    @media (hover: hover) and (pointer: fine) { .cta:hover { background: #f4f4f4; } }
+    .cta:active { transform: scale(0.98); }
+    /* label roll: each letter rolls up 20ms after the one before, while "Get Annual Plan" rolls in from below */
+    .cta-roll { position: relative; display: inline-block; height: 20px; white-space: nowrap; }
+    .cta-line { display: inline-flex; }
+    .cta-line.alt { position: absolute; top: 0; left: 50%; translate: -50% 0; }
+    .rc { display: inline-block; height: 20px; overflow: hidden; }
+    .rc > span { display: block; transition: transform 350ms cubic-bezier(0.4, 0, 0.2, 1) calc(var(--i) * 20ms); }
+    .rc-space { white-space: pre; }
+    .cta-line.alt .rc > span { transform: translateY(100%); }
+    @media (hover: hover) and (pointer: fine) {
+      .cta:hover .cta-line:first-child .rc > span { transform: translateY(-100%); }
+      .cta:hover .cta-line.alt .rc > span { transform: none; }
+    }
+    .cta:focus-visible .cta-line:first-child .rc > span { transform: translateY(-100%); }
+    .cta:focus-visible .cta-line.alt .rc > span { transform: none; }
+
+    .features { display: flex; flex-direction: column; gap: 16px; }
+    .features li { display: flex; align-items: center; gap: 4px; font-weight: 500; font-size: 16px; line-height: 24px; letter-spacing: 0.16px; color: var(--card-text); white-space: nowrap; }
+    .features img { width: 24px; height: 24px; flex: none; }
+
+    /* "Offer ends in" panel */
+    .countdown { position: relative; overflow: clip; display: flex; flex-direction: column; gap: 16px; padding: 16px; border-radius: 12.5px; background: #141414; box-shadow: 0 1.563px 1.563px rgba(0, 0, 0, 0.1); }
+    .countdown-top { display: flex; align-items: center; justify-content: space-between; font-size: 12px; line-height: 12px; letter-spacing: 0.12px; color: var(--soft); white-space: nowrap; }
+    .countdown-top .date { color: var(--white); }
+    .clock { display: flex; align-items: center; justify-content: space-between; }
+    .unit { display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 30px; }
+    .digits { display: flex; justify-content: center; font-weight: 500; font-size: 20px; line-height: 24px; font-variant-numeric: tabular-nums; color: var(--white); }
+    .unit .name { font-weight: 500; font-size: 12px; line-height: 16px; text-transform: uppercase; color: var(--soft); }
+    .colon { flex: none; width: 3px; height: 9px; background: radial-gradient(circle at 1.5px 1.5px, var(--colon) 1.5px, transparent 1.6px) 0 0 / 3px 6px repeat-y; }
+    .slot { position: relative; display: inline-block; height: 24px; overflow: hidden; }
+    .slot > span { display: block; }
+    .slot > .in { position: absolute; inset: 0; animation: roll-in 420ms var(--ease-out) both; }
+    .slot > .out { animation: roll-out 420ms var(--ease-out) both; }
+    @keyframes roll-in { from { transform: translateY(70%); opacity: 0; filter: blur(2px); } to { transform: none; opacity: 1; filter: none; } }
+    @keyframes roll-out { from { transform: none; opacity: 1; } to { transform: translateY(-70%); opacity: 0; filter: blur(2px); } }
+
+    /* new in these frames: what every listing includes, under the card */
+    .includes { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 16px; width: max-content; max-width: calc(100vw - 32px); }
+    .includes > * { display: flex; align-items: center; gap: 4px; font-size: 12px; line-height: 16px; letter-spacing: 0.12px; color: var(--soft); white-space: nowrap; }
+    .includes .lead { color: var(--card-text); }
+    .includes img { width: 16px; height: 16px; flex: none; }
+
+    /* diagonal ribbon across the panel's corner, with Figma's (lighter) grain */
+    .ribbon { position: absolute; z-index: 2; right: -61.54px; top: -28.95px; width: 274.194px; height: 124.255px; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+    .ribbon-band {
+      flex: none; width: 280.872px; height: 30px; rotate: 20deg; display: flex; align-items: center; justify-content: center; gap: var(--rgap, 8px); padding: 0 12px;
+      background-color: var(--accent); color: var(--tag-ink); font-weight: 500; font-size: 12px; line-height: 20px; letter-spacing: 0.12px; white-space: nowrap;
+      transition: color 420ms var(--ease-out);
+    }
+    .ribbon-band .dot { width: 4px; height: 4px; border-radius: 50%; background: currentColor; }
+    .grain { background-image: var(--noise, none); background-size: 100px 100px; }
+    /* hovering the card rolls the ribbon text up and the same words in from below, piece by piece */
+    .roll { display: block; height: 20px; overflow: hidden; }
+    .roll > span { display: flex; flex-direction: column; transition: translate 520ms var(--ease-out) var(--d, 0ms); }
+    .roll > span > span { display: block; height: 20px; }
+    .roll.dot-roll > span > span { display: flex; align-items: center; justify-content: center; }
+    @media (hover: hover) and (pointer: fine) { .design:hover .roll > span { translate: 0 -20px; } }
+    .design:focus-within .roll > span { translate: 0 -20px; }
+
+    /* ---------- Controls: colour switch + close ---------- */
+    .controls { position: fixed; z-index: 12; top: 50px; right: 50px; display: flex; gap: 12px; }
+    .ctrl {
+      position: relative; display: grid; place-items: center; width: 50px; height: 50px; border-radius: 12.5px;
+      background: var(--ctrl-bg); color: var(--ctrl-ink); box-shadow: 0 1.563px 1.563px rgba(0, 0, 0, 0.1), var(--ctrl-inset);
+      transition: transform 160ms var(--ease-out), background-color 150ms ease;
+    }
+    .ctrl::after, .toolbar::after { content: ""; position: absolute; inset: 0; border-radius: inherit; border: 1.563px solid var(--ctrl-edge); pointer-events: none; }
+    .ctrl svg { width: 25px; height: 25px; }
+    @media (hover: hover) and (pointer: fine) { .ctrl:hover { background: var(--ctrl-hover); } .close:hover svg { transform: rotate(90deg); } }
+    .ctrl:active { transform: scale(0.94); }
+    .close svg { transition: transform 200ms var(--ease-out); }
+    /* the colour button shows both colours as two halves of one dot; the current one sits in front and the dot turns on each switch */
+    .swap .duo { position: relative; width: 18px; height: 18px; border-radius: 50%; overflow: hidden; box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.14); transition: rotate 420ms var(--ease-out); }
+    .swap .duo::before, .swap .duo::after { content: ""; position: absolute; top: 0; bottom: 0; width: 50%; }
+    .swap .duo::before { left: 0; background: #de232c; }
+    .swap .duo::after { right: 0; background: #fff318; }
+    [data-color="yellow"] .swap .duo { rotate: 180deg; }
+
+    .switcher { position: fixed; z-index: 12; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); translate: -50% 0; display: flex; flex-direction: column; align-items: center; gap: 8px; max-width: calc(100vw - 24px); }
+    .var-name { font-size: 12px; line-height: 16px; color: var(--muted); white-space: nowrap; }
+    @media (min-width: 1180px) {
+      .switcher { left: 50px; top: 50px; bottom: auto; translate: none; flex-direction: column-reverse; align-items: flex-start; max-width: calc(50vw - 291px - 74px); }
+      .switcher .toolbar { flex-direction: column; align-items: stretch; overflow: visible; }
+      .switcher .tab { padding: 0 16px 0 12px; }
+      .var-name { padding-left: 4px; white-space: normal; max-width: 220px; }
+    }
+    .toolbar { position: relative; display: flex; gap: 2px; padding: 4px; border-radius: 16.5px; background: var(--ctrl-bg); box-shadow: 0 1.563px 1.563px rgba(0, 0, 0, 0.1), var(--ctrl-inset); max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+    .tab { flex: none; display: flex; align-items: center; gap: 7px; height: 40px; padding: 0 12px; border-radius: 12.5px; font-weight: 500; font-size: 14px; line-height: 20px; color: var(--muted); transition: color 150ms ease, background-color 150ms ease; }
+    .tab i { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12); }
+    .tab[aria-pressed="true"] { color: var(--ctrl-ink); background: var(--tab-on); box-shadow: var(--ctrl-inset); }
+    @media (hover: hover) and (pointer: fine) { .tab:hover { color: var(--ctrl-ink); } }
+    .tab:focus-visible { outline-offset: -2px; }
+
+    @media (max-width: 640px) {
+      .offer-scroll { padding: 76px 0 110px; }
+      .page { padding-top: 26px; }
+      .controls { top: 12px; right: 12px; gap: 8px; }
+      .ctrl { width: 44px; height: 44px; border-radius: 12px; }
+      .ctrl svg { width: 22px; height: 22px; }
+      .hero h1 { font-size: 40px; line-height: 52px; letter-spacing: -1.2px; }
+      .hero .ghost { --gh: 44px; top: -26px; font-size: 38px; letter-spacing: -1.14px; }
+      .switcher { bottom: calc(12px + env(safe-area-inset-bottom)); }
+    }
+    @media (max-width: 380px) {
+      .panel { padding: 19px; }
+      .bottom { padding: 20px; }
+      .price .was, .price .now { font-size: 34px; }
+      .features li { white-space: normal; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      :root { transition: none; }
+      .js .design { animation: none; }
+      .slot > .in, .slot > .out { animation-duration: 1ms; }
+      .design:hover .panel::before { transform: none; }
+      .roll > span, .rc > span, .swap .duo { transition: none; }
+      .cta:hover .cta-line:first-child .rc > span, .cta:focus-visible .cta-line:first-child .rc > span { transform: none; }
+      .cta:hover .cta-line.alt .rc > span, .cta:focus-visible .cta-line.alt .rc > span { transform: translateY(100%); }
+      .ghost:hover .g-line:first-child .rc > span { transform: none; }
+      .ghost:hover .g-line.alt .rc > span { transform: translateY(100%); }
+      .design:hover .roll > span, .design:focus-within .roll > span { translate: none; }
+    }
+  </style>
+  <script>
+    (() => {
+      const root = document.documentElement;
+      root.classList.add('js');
+      const q = new URLSearchParams(location.search);
+      let d = q.get('design');
+      if (!/^v[1-4]$/.test(d || '')) { try { d = localStorage.getItem('rendy-bfp-design'); } catch (e) { d = null; } }
+      root.dataset.design = /^v[1-4]$/.test(d || '') ? d : 'v1';
+      // opens in red; ?color=yellow opens yellow, and the colour button switches for the visit
+      root.dataset.color = q.get('color') === 'yellow' ? 'yellow' : 'red';
+    })();
+  </script>
+  <script src="assets/bf/dots-mask.js"></script>
+</head>
+<body>
+  <div class="offer-scroll" id="scroll">
+    <main class="page" id="page">
+      <div class="tex-wrap" aria-hidden="true">
+        <img class="tex-red" src="assets/bf/texture-red-4.svg" alt="" />
+        <img class="tex-yellow" src="assets/bf/texture-yellow-4.svg" alt="" />
+        <div class="glow" id="glow"></div>
+      </div>
+
+      <section class="hero">
+        <h1>Black Friday Offer</h1>
+        <p class="ghost" aria-hidden="true">-25% OFF</p>
+      </section>
+
+      <div class="design" id="design"></div>
+    </main>
+  </div>
+
+  <div class="controls">
+    <button class="ctrl swap" id="swap" type="button" aria-label="Switch to yellow"><span class="duo" aria-hidden="true"></span></button>
+    <a class="ctrl close" href="#" aria-label="Close offer">
+      <svg viewBox="0 0 25 25" fill="none" stroke="currentColor" stroke-width="2.34375" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.25 6.25 18.75 18.75M18.75 6.25 6.25 18.75"/></svg>
+    </a>
+  </div>
+
+  <div class="switcher">
+    <p class="var-name" id="var-name" aria-live="polite"></p>
+    <div class="toolbar" role="group" aria-label="Design" id="toolbar"></div>
+  </div>
+
+  <script>
+    (() => {
+      // Hard end: Mon Nov 30 2026, 23:59 PT. QA: ?now=2026-11-02T00:00:00Z previews any moment.
+      const OFFER_END = new Date('2026-11-30T23:59:59-08:00').getTime();
+      const q = new URLSearchParams(location.search);
+      const offset = q.get('now') && !isNaN(Date.parse(q.get('now'))) ? Date.parse(q.get('now')) - Date.now() : 0;
+      const now = () => Date.now() + offset;
+      const root = document.documentElement;
+      const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+
+      // ---- Pieces (copy is Figma's, word for word) ----
+      const clock = `
+        <div class="clock" role="timer" aria-label="Offer ends Monday November 30 at 11:59 PM Pacific">
+          <div class="unit"><span class="digits" data-unit="d" aria-hidden="true"></span><span class="name">Days</span></div>
+          <span class="colon" aria-hidden="true"></span>
+          <div class="unit"><span class="digits" data-unit="h" aria-hidden="true"></span><span class="name">Hrs</span></div>
+          <span class="colon" aria-hidden="true"></span>
+          <div class="unit"><span class="digits" data-unit="m" aria-hidden="true"></span><span class="name">Min</span></div>
+          <span class="colon" aria-hidden="true"></span>
+          <div class="unit"><span class="digits" data-unit="s" aria-hidden="true"></span><span class="name">Sec</span></div>
+        </div>`;
+      const countdown = `<div class="countdown"><div class="countdown-top"><span>Offer ends in</span><span class="date">Mon, Nov 30, 11:59 PM PT</span></div>${clock}</div>`;
+      // V1 red uses Figma's first stars sheet, every other frame the second
+      const art = starsFile => `
+        <div class="lights" aria-hidden="true">
+          <div class="sheet a"><div><img src="assets/bf/lights-1.svg" alt="" /></div></div>
+          <div class="sheet b"><div><img src="assets/bf/lights-2.svg" alt="" /></div></div>
+        </div>
+        <img class="stars" src="assets/bf/${starsFile}.svg" alt="" aria-hidden="true" />`;
+      const features = `<ul class="features">
+          <li><img src="assets/bf/check.svg" alt="" />5 Listing every month</li>
+          <li><img src="assets/bf/check.svg" alt="" />$15 per additional Listings</li>
+          <li><img src="assets/bf/check.svg" alt="" />Unused Listing credits roll over</li>
+        </ul>`;
+      const includes = `<div class="includes"><p class="lead">Every Listing Includes</p>
+          <p><img src="assets/bf/check-16.svg" alt="" />6 Videos per Listing</p>
+          <p><img src="assets/bf/check-16.svg" alt="" />20 Photos per Listing</p>
+          <p><img src="assets/bf/check-16.svg" alt="" />Vertical Or Horizontal</p></div>`;
+
+      // button: "Get Started", rolling letter by letter into "Get Annual Plan" on hover
+      const rollChars = t => [...t].map((c, i) => c === ' ' ? '<span class="rc-space"> </span>' : `<span class="rc" style="--i:${i}"><span>${c}</span></span>`).join('');
+      const cta = `<a class="cta" href="#checkout" aria-label="Get Started"><span class="cta-roll" aria-hidden="true"><span class="cta-line">${rollChars('Get Started')}</span><span class="cta-line alt">${rollChars('Get Annual Plan')}</span></span></a>`;
+      // splitting a label into letters drops the font's kerning, so each letter gets back the pair adjustment it had in the word
+      const kernCanvas = document.createElement('canvas').getContext('2d');
+      function kernLabels(scope) {
+        scope.querySelectorAll('.cta-line, .g-line').forEach(line => {
+          kernCanvas.font = getComputedStyle(line).font;
+          const text = [...line.children].map(c => c.textContent).join('');
+          [...line.children].forEach((c, i) => {
+            const before = kernCanvas.measureText(text.slice(0, i)).width;
+            const after = kernCanvas.measureText(text.slice(0, i + 1)).width;
+            c.style.marginRight = `${(after - before - kernCanvas.measureText(text[i]).width).toFixed(3)}px`;
+          });
+        });
+      }
+
+      const roll = (t, d) => `<span class="roll" style="--d:${d}ms" aria-hidden="true"><span><span>${t}</span><span>${t}</span></span></span>`;
+      const dotRoll = `<span class="roll dot-roll" style="--d:60ms" aria-hidden="true"><span><span><span class="dot"></span></span><span><span class="dot"></span></span></span></span>`;
+      const ribbon = (save, gap) => `<div class="ribbon"><p class="ribbon-band grain" style="--rgap:${gap}px"><span class="sr-only">${save}, Black Friday</span>${roll(save, 0)}${dotRoll}${roll('Black Friday', 120)}</p></div>`;
+      const was = v => `<span class="was"><span class="sr-only">Normally </span>${v}</span>`;
+      const cut = `<p class="price">${was('$79')}<span class="now"><span class="sr-only">, now </span>$59</span><span class="per">/Month</span></p>`;
+      const now59 = `<p class="price"><span class="now">$59</span><span class="per">/Month</span></p>`;
+      const card = (lm, stars, top) => `
+        <article class="shell" aria-labelledby="plan-name">
+          <div class="panel ${lm}">${art(stars)}${top}</div>
+          <div class="bottom">${countdown}${features}</div>
+        </article>${includes}`;
+      const head = (sub = 'Annual Plan') => `<div class="head-row"><h2 id="plan-name">5 Listings</h2><p class="sub">${sub}</p></div>`;
+
+      // ---- The four shortlisted designs (Figma 50-9178 / 50-3375, 50-4122 / 50-4890, 50-7140 / 50-7883, 50-5658 / 50-6399) ----
+      const DESIGNS = {
+        v1: { name: '$59/Month with the billing line', html: c => card('lm-264', c === 'red' ? 'stars-4' : 'stars-5',
+              ribbon('Save $240', 10) + head() +
+              `<div class="stack-6">${now59}<p class="meta fine-14"><span><s>$79</s>/Month</span><span class="dot" aria-hidden="true"></span><span>Billed annually at <span class="w">$708</span></span></p></div>` + cta) },
+        v2: { name: '$79 struck through, billing chip', html: () => card('lm-278', 'stars-5',
+              ribbon('Save $240', 8) + head() +
+              `<div class="stack-6">${cut}<span class="chip">Billed annually at $708&nbsp;</span></div>` + cta) },
+        v3: { name: '$699/Year', html: () => card('lm-268', 'stars-5',
+              ribbon('Save $249', 8) + head() +
+              `<div class="stack-4"><p class="was-20"><span class="sr-only">Normally </span>$948</p><p class="price"><span class="now"><span class="sr-only">, now </span>$699</span><span class="per">/Year</span></p></div>` + cta) },
+        v4: { name: '$79 struck through, billed annually under the name', html: () => card('lm-264', 'stars-5',
+              ribbon('Save $240', 8) + head('Billed annually') + cut + cta) },
+      };
+
+      const designEl = document.getElementById('design');
+      // "-25% OFF": two copies of the word, letter by letter, for the hover roll
+      const hero = document.querySelector('.hero');
+      const ghost = hero.querySelector('.ghost');
+      ghost.innerHTML = `<span class="g-line">${rollChars('-25% OFF')}</span><span class="g-line alt">${rollChars('-25% OFF')}</span>`;
+      kernLabels(hero);
+      const varName = document.getElementById('var-name');
+      const toolbar = document.getElementById('toolbar');
+
+      // ---- Countdown: only the digit that changes rolls ----
+      const pad = n => String(n).padStart(2, '0');
+      function setDigits(el, str) {
+        while (el.children.length < str.length) { const s = document.createElement('span'); s.className = 'slot'; s.innerHTML = '<span></span>'; el.prepend(s); }
+        while (el.children.length > str.length) el.firstElementChild.remove();
+        [...str].forEach((ch, i) => {
+          const slot = el.children[i];
+          const cur = slot.querySelector('span:not(.out)');
+          if (cur.textContent === ch) return;
+          if (!cur.textContent || reduceMotion.matches || document.hidden) { cur.textContent = ch; return; }
+          slot.querySelectorAll('.out').forEach(n => n.remove());
+          const next = document.createElement('span');
+          next.textContent = ch; next.className = 'in'; cur.className = 'out';
+          slot.append(next);
+          next.addEventListener('animationend', () => { cur.remove(); next.className = ''; }, { once: true });
+        });
+      }
+      let parts = { d: '00', h: '00', m: '00', s: '00' };
+      const paint = () => document.querySelectorAll('[data-unit]').forEach(el => setDigits(el, parts[el.dataset.unit]));
+      function tick() {
+        const left = Math.max(0, OFFER_END - now());
+        const s = Math.floor(left / 1000);
+        parts = { d: pad(Math.floor(s / 86400)), h: pad(Math.floor(s % 86400 / 3600)), m: pad(Math.floor(s % 3600 / 60)), s: pad(s % 60) };
+        paint();
+        if (left > 0) setTimeout(tick, 1000 - (now() % 1000) + 5);
+      }
+
+      // ---- Designs and colour ----
+      const KEYS = Object.keys(DESIGNS);
+      const COLOR_NAME = { red: 'Red', yellow: 'Yellow' };
+      function caption() { varName.textContent = `${root.dataset.design.toUpperCase()} · ${COLOR_NAME[root.dataset.color]} · ${DESIGNS[root.dataset.design].name}`; }
+      function render(animate) {
+        const key = root.dataset.design;
+        designEl.innerHTML = DESIGNS[key].html(root.dataset.color);
+        if (animate && !reduceMotion.matches) { designEl.style.animation = 'none'; void designEl.offsetWidth; designEl.style.animation = ''; }
+        paint(); kernLabels(designEl); caption();
+        designEl.querySelectorAll('.cta').forEach(a => a.addEventListener('click', e => { e.preventDefault(); console.warn('[black-friday-picks] checkout URL is not set yet'); }));
+      }
+      function show(key, animate = true) {
+        if (!DESIGNS[key]) key = 'v1';
+        root.dataset.design = key;
+        render(animate);
+        toolbar.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-pressed', String(t.dataset.design === key)));
+        try { localStorage.setItem('rendy-bfp-design', key); } catch (e) {}
+      }
+      KEYS.forEach(k => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'tab'; b.dataset.design = k; b.title = DESIGNS[k].name;
+        b.innerHTML = `<i aria-hidden="true"></i>${k.toUpperCase()}`;
+        b.addEventListener('click', () => show(k));
+        toolbar.append(b);
+      });
+      show(root.dataset.design, false);
+      document.fonts && document.fonts.ready.then(() => { kernLabels(designEl); kernLabels(hero); });
+      tick();
+
+      // colour: everything follows --accent; only V1's stars sheet differs between the two frames, so V1 re-renders quietly
+      const swapBtn = document.getElementById('swap');
+      const swapLabel = () => swapBtn.setAttribute('aria-label', root.dataset.color === 'red' ? 'Switch to yellow' : 'Switch to red');
+      swapLabel();
+      swapBtn.addEventListener('click', () => {
+        root.dataset.color = root.dataset.color === 'red' ? 'yellow' : 'red';
+        swapLabel(); caption();
+        const stars = designEl.querySelector('.stars');
+        if (stars && root.dataset.design === 'v1') stars.src = `assets/bf/${root.dataset.color === 'red' ? 'stars-4' : 'stars-5'}.svg`;
+      });
+
+      addEventListener('keydown', e => {
+        if (e.target.closest('input, textarea')) return;
+        const i = KEYS.indexOf(root.dataset.design);
+        if (e.key === 'ArrowRight') show(KEYS[(i + 1) % KEYS.length]);
+        if (e.key === 'ArrowLeft') show(KEYS[(i - 1 + KEYS.length) % KEYS.length]);
+      });
+
+      // ---- Grain: the ribbons' duotone noise as set in these frames (size 0.2, density 70%, specks 10% black or 10% white) ----
+      (() => {
+        const c = document.createElement('canvas'); c.width = c.height = 256;
+        const g = c.getContext('2d'), img = g.createImageData(256, 256);
+        let seed = 1130;
+        const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
+        for (let i = 0; i < img.data.length; i += 4) {
+          const speck = rnd() < 0.7, white = rnd() < 0.5;
+          img.data[i] = img.data[i + 1] = img.data[i + 2] = white ? 255 : 0;
+          img.data[i + 3] = speck ? Math.round(0.075 * 255) : 0; // 10% in Figma; its specks are smaller than a pixel, so 7.5% here matches the rendered result
+        }
+        g.putImageData(img, 0, 0);
+        root.style.setProperty('--noise', `url(${c.toDataURL()})`);
+      })();
+
+      // ---- Cursor glow: lit only over the texture, easing after the pointer ----
+      const glow = document.getElementById('glow');
+      let tx = 0, ty = 0, cx = null, cy = null, raf = 0;
+      const step = () => {
+        const k = reduceMotion.matches ? 1 : 0.14;
+        cx += (tx - cx) * k; cy += (ty - cy) * k;
+        glow.style.setProperty('--gx', `${cx.toFixed(1)}px`);
+        glow.style.setProperty('--gy', `${cy.toFixed(1)}px`);
+        raf = Math.abs(tx - cx) + Math.abs(ty - cy) > 0.3 ? requestAnimationFrame(step) : 0;
+      };
+      const SLACK = 24;
+      addEventListener('pointermove', e => {
+        const r = glow.getBoundingClientRect();
+        const over = e.clientX > r.left - SLACK && e.clientX < r.right + SLACK && e.clientY > r.top - SLACK && e.clientY < r.bottom + SLACK;
+        if (!over) { root.classList.remove('is-lit'); return; }
+        tx = e.clientX - r.left; ty = e.clientY - r.top;
+        if (cx === null || !root.classList.contains('is-lit')) { cx = tx; cy = ty; }
+        root.classList.add('is-lit');
+        if (!raf) raf = requestAnimationFrame(step);
+      }, { passive: true });
+      document.addEventListener('pointerleave', () => root.classList.remove('is-lit'));
+      document.documentElement.addEventListener('mouseleave', () => root.classList.remove('is-lit'));
+      addEventListener('blur', () => root.classList.remove('is-lit'));
+      document.getElementById('scroll').addEventListener('scroll', () => root.classList.remove('is-lit'), { passive: true });
+    })();
+  </script>
+</body>
+</html>
